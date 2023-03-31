@@ -117,6 +117,8 @@ export class MessageClient {
           let author: User | null = null
           if (message.bot_id) {
             author = await this.userClient.getBot(slackClient, message.bot_id, message.app_id)
+          } else if (message.user === undefined) {
+            author = await this.userClient.getBot(slackClient, 'B01', message.app_id)
           } else if (message.user) {
             author = await this.userClient.getUser(slackClient, message.user)
           }
@@ -225,10 +227,16 @@ export class MessageClient {
 
       const timestamp = fromUnixTime(parseFloat(message.timestamp))
 
-      let authorTypeIcon: '🟢' | '🔵' | '🤖' = '🟢'
-      if (message.authorType === 2) {
-        authorTypeIcon = '🔵'
-      } else if (message.authorType === 3) {
+      // let authorTypeIcon: '🟢' | '🔵' | '🤖' = '🟢'
+      // if (message.authorType === 2) {
+      //   authorTypeIcon = '🔵'
+      // } else if (message.authorType === 3) {
+      //   authorTypeIcon = '🤖'
+      // }
+
+      let authorTypeIcon: '' | '🤖' = ''
+
+      if (message.authorType === 3) {
         authorTypeIcon = '🤖'
       }
 
@@ -355,7 +363,7 @@ export class MessageClient {
 
     // Delete all messages
     await Promise.all(
-      channels.map(async (channel) => {
+      channels.map(async (channel: any) => {
         if (!channel.deployId) throw new Error(`Failed to deployed channel id of ${channel.name}`)
 
         const channelManager = discordClient.channels.cache.get(channel.deployId)

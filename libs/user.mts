@@ -155,23 +155,7 @@ export class UserClient {
     let bot: User | null = null
 
     // Return dummy response for Slackbot (B01)
-    if (botId === 'B01') {
-      bot = {
-        id: 'USLACKBOT',
-        appId: null,
-        botId: 'B01',
-        name: 'Slackbot',
-        type: 3,
-        color: parseInt('808080', 16),
-        email: null,
-        isDeleted: false,
-        imageUrl:
-          'https://a.slack-edge.com/80588/marketing/img/avatars/slackbot/avatar-slackbot@2x.png',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      return bot
-    }
+    if (botId === 'B01') return this.getDummySlackbot()
 
     bot = await this.client.user.findFirst({
       where: {
@@ -182,35 +166,60 @@ export class UserClient {
     })
     if (bot) return bot
 
-    const result = await slackClient.bots.info({ bot: botId })
-    if (
-      result.bot !== undefined &&
-      result.bot.app_id !== undefined &&
-      result.bot.name !== undefined &&
-      result.bot.icons?.image_72 !== undefined &&
-      result.bot.deleted !== undefined
-    ) {
-      bot = await this.client.user.findFirst({
-        where: {
-          appId: result.bot.app_id,
-          type: 3,
-        },
-      })
-      if (bot) return bot
+    return this.getDummySlackbot()
 
-      bot = {
-        id: uuidv4(),
-        appId: result.bot.app_id,
-        botId: botId,
-        name: result.bot.name,
-        type: 3,
-        color: parseInt('808080', 16),
-        email: null,
-        imageUrl: result.bot.icons.image_72,
-        isDeleted: result.bot.deleted,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+    // try {
+    //   const result = await slackClient.bots.info({ bot: botId })
+
+    //   if (
+    //     result.bot !== undefined &&
+    //     result.bot.app_id !== undefined &&
+    //     result.bot.name !== undefined &&
+    //     result.bot.icons?.image_72 !== undefined &&
+    //     result.bot.deleted !== undefined
+    //   ) {
+    //     bot = await this.client.user.findFirst({
+    //       where: {
+    //         appId: result.bot.app_id,
+    //         type: 3,
+    //       },
+    //     })
+    //     if (bot) return bot
+
+    //     bot = {
+    //       id: uuidv4(),
+    //       appId: result.bot.app_id,
+    //       botId: botId,
+    //       name: result.bot.name,
+    //       type: 3,
+    //       color: parseInt('808080', 16),
+    //       email: null,
+    //       imageUrl: result.bot.icons.image_72,
+    //       isDeleted: result.bot.deleted,
+    //       createdAt: new Date(),
+    //       updatedAt: new Date(),
+    //     }
+    //   }
+    //   return bot
+    // } catch (error) {
+    //   return this.getDummySlackbot()
+    // }
+  }
+
+  getDummySlackbot() {
+    const bot = {
+      id: 'USLACKBOT',
+      appId: null,
+      botId: 'B01',
+      name: 'Slackbot',
+      type: 3,
+      color: parseInt('808080', 16),
+      email: null,
+      isDeleted: false,
+      imageUrl:
+        'https://a.slack-edge.com/80588/marketing/img/avatars/slackbot/avatar-slackbot@2x.png',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
     return bot
   }
